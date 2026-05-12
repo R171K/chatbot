@@ -123,83 +123,82 @@
   </div>
 
   <script>
-    const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
+  const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
 
-    async function sendMessage() {
-      const input = document.getElementById("userInput");
-      const chatBox = document.getElementById("chatBox");
+  function formatToMarkdown(text) {
+    return text
+      // Convert • to proper markdown list
+      .replace(/^•\s/gm, "- ")
 
-      const message = input.value.trim();
-      if (!message) return;
+      // Convert ✔ 📌 🚫 ➡ into list items
+      .replace(/^(✔|📌|🚫|➡)\s/gm, "- $1 ")
 
-      // Show user message
-      chatBox.innerHTML += `<div class="message user">${message}</div>`;
-      input.value = "";
+      // Fix multiple empty lines
+      .replace(/\n\s*\n/g, "\n\n");
+  }
 
-      // Show typing
-      const typingId = "typing-" + Date.now();
-      chatBox.innerHTML += `<div id="${typingId}" class="message bot">Typing...</div>`;
+  async function sendMessage() {
+    const input = document.getElementById("userInput");
+    const chatBox = document.getElementById("chatBox");
+
+    const message = input.value.trim();
+    if (!message) return;
+
+    chatBox.innerHTML += `<div class="message user">${message}</div>`;
+    input.value = "";
+
+    const typingId = "typing-" + Date.now();
+    chatBox.innerHTML += `<div id="${typingId}" class="message bot">Typing...</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000);
+
+      const response = await fetch(webhookURL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ chatInput: message }),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeout);
+
+      const data = await response.json();
+
+      document.getElementById(typingId).remove();
+
+      const botReply =
+        data.output ||
+        data.response ||
+        data.text ||
+        "⚠️ Sorry, I couldn’t find that information.";
+
+      // 🔥 FIX: Convert to markdown-friendly format
+      const cleaned = formatToMarkdown(botReply);
+
+      const formatted = marked.parse(cleaned);
+
+      chatBox.innerHTML += `<div class="message bot">${formatted}</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
 
-      try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 20000);
+    } catch (error) {
+      document.getElementById(typingId).remove();
 
-        const response = await fetch(webhookURL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            chatInput: message
-          }),
-          signal: controller.signal
-        });
-
-        clearTimeout(timeout);
-
-        const data = await response.json();
-
-        // Remove typing
-        document.getElementById(typingId).remove();
-
-        // Extract response safely
-        let botReply =
-          data.output ||
-          data.response ||
-          data.text ||
-          "⚠️ Sorry, I couldn’t find that information.";
-
-        // 🔥 FIX: Convert plain bullets into markdown-friendly format
-        botReply = botReply
-          .replace(/\n/g, "\n\n") // force line breaks
-          .replace(/•/g, "\n•")   // ensure bullets start on new line
-          .replace(/✔/g, "\n✔")
-          .replace(/📌/g, "\n📌")
-          .replace(/🚫/g, "\n🚫");
-
-        // Render markdown
-        const formatted = marked.parse(botReply);
-
-        chatBox.innerHTML += `<div class="message bot">${formatted}</div>`;
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-      } catch (error) {
-        document.getElementById(typingId).remove();
-
-        chatBox.innerHTML += `
-          <div class="message bot">
-            ⚠️ Connection issue. Please try again.
-          </div>
-        `;
-      }
+      chatBox.innerHTML += `
+        <div class="message bot">
+          ⚠️ Connection issue. Please try again.
+        </div>
+      `;
     }
+  }
 
-    // Enter key support
-    document.getElementById("userInput").addEventListener("keypress", function(e) {
-      if (e.key === "Enter") sendMessage();
-    });
-  </script>
+  document.getElementById("userInput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
+  });
+</script>
 
 </body>
 </html>
