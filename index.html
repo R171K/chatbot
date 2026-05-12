@@ -126,16 +126,34 @@
   const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
 
   function formatToMarkdown(text) {
-    return text
-      // Convert • to proper markdown list
-      .replace(/^•\s/gm, "- ")
+  const lines = text.split("\n");
 
-      // Convert ✔ 📌 🚫 ➡ into list items
-      .replace(/^(✔|📌|🚫|➡)\s/gm, "- $1 ")
+  return lines.map(line => {
+    const trimmed = line.trim();
 
-      // Fix multiple empty lines
-      .replace(/\n\s*\n/g, "\n\n");
-  }
+    // EMPTY LINE
+    if (!trimmed) return "";
+
+    // KEEP HEADINGS (no bullet)
+    if (trimmed.startsWith("**") || /^[A-Z][A-Za-z\s]+$/.test(trimmed)) {
+      return trimmed;
+    }
+
+    // ONLY convert real bullet indicators
+    if (
+      trimmed.startsWith("• ") ||
+      trimmed.startsWith("✔ ") ||
+      trimmed.startsWith("📌 ") ||
+      trimmed.startsWith("🚫 ") ||
+      trimmed.startsWith("➡ ")
+    ) {
+      return "- " + trimmed;
+    }
+
+    // OTHERWISE → normal paragraph
+    return trimmed;
+  }).join("\n");
+}
 
   async function sendMessage() {
     const input = document.getElementById("userInput");
