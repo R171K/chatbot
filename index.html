@@ -45,7 +45,7 @@
       border-radius: 12px;
       line-height: 1.6;
       font-size: 14px;
-      white-space: normal;
+      white-space: pre-wrap; /* ✅ PRESERVE LINE BREAKS */
     }
 
     .user {
@@ -123,100 +123,78 @@
   </div>
 
   <script>
-  const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
+    const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
 
-  function formatToMarkdown(text) {
-  const lines = text.split("\n");
-
-  return lines.map(line => {
-    const trimmed = line.trim();
-
-    // EMPTY LINE
-    if (!trimmed) return "";
-
-    // KEEP HEADINGS (no bullet)
-    if (trimmed.startsWith("**") || /^[A-Z][A-Za-z\s]+$/.test(trimmed)) {
-      return trimmed;
+    // ✅ CLEAN FORMATTER (NO BULLET FORCING)
+    function cleanText(text) {
+      return text
+        .replace(/\n{3,}/g, "\n\n") // remove excessive spacing
+        .trim();
     }
 
-    // ONLY convert real bullet indicators
-    if (
-      trimmed.startsWith("• ") ||
-      trimmed.startsWith("✔ ") ||
-      trimmed.startsWith("📌 ") ||
-      trimmed.startsWith("🚫 ") ||
-      trimmed.startsWith("➡ ")
-    ) {
-      return "- " + trimmed;
-    }
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const chatBox = document.getElementById("chatBox");
 
-    // OTHERWISE → normal paragraph
-    return trimmed;
-  }).join("\n");
-}
+      const message = input.value.trim();
+      if (!message) return;
 
-  async function sendMessage() {
-    const input = document.getElementById("userInput");
-    const chatBox = document.getElementById("chatBox");
+      chatBox.innerHTML += `<div class="message user">${message}</div>`;
+      input.value = "";
 
-    const message = input.value.trim();
-    if (!message) return;
-
-    chatBox.innerHTML += `<div class="message user">${message}</div>`;
-    input.value = "";
-
-    const typingId = "typing-" + Date.now();
-    chatBox.innerHTML += `<div id="${typingId}" class="message bot">Typing...</div>`;
-    chatBox.scrollTop = chatBox.scrollHeight;
-
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 20000);
-
-      const response = await fetch(webhookURL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ chatInput: message }),
-        signal: controller.signal
-      });
-
-      clearTimeout(timeout);
-
-      const data = await response.json();
-
-      document.getElementById(typingId).remove();
-
-      const botReply =
-        data.output ||
-        data.response ||
-        data.text ||
-        "⚠️ Sorry, I couldn’t find that information.";
-
-      // 🔥 FIX: Convert to markdown-friendly format
-      const cleaned = formatToMarkdown(botReply);
-
-      const formatted = marked.parse(cleaned);
-
-      chatBox.innerHTML += `<div class="message bot">${formatted}</div>`;
+      const typingId = "typing-" + Date.now();
+      chatBox.innerHTML += `<div id="${typingId}" class="message bot">Typing...</div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
 
-    } catch (error) {
-      document.getElementById(typingId).remove();
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 20000);
 
-      chatBox.innerHTML += `
-        <div class="message bot">
-          ⚠️ Connection issue. Please try again.
-        </div>
-      `;
+        const response = await fetch(webhookURL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ chatInput: message }),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeout);
+
+        const data = await response.json();
+
+        document.getElementById(typingId).remove();
+
+        const botReply =
+          data.output ||
+          data.response ||
+          data.text ||
+          "⚠️ Sorry, I couldn’t find that information.";
+
+        // ✅ CLEAN ONLY (no bullet manipulation)
+        const cleaned = cleanText(botReply);
+
+        // ✅ RENDER MARKDOWN (AI controls bullets)
+        const formatted = marked.parse(cleaned);
+
+        chatBox.innerHTML += `<div class="message bot">${formatted}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+      } catch (error) {
+        document.getElementById(typingId).remove();
+
+        chatBox.innerHTML += `
+          <div class="message bot">
+            ⚠️ Connection issue. Please try again.
+          </div>
+        `;
+      }
     }
-  }
 
-  document.getElementById("userInput").addEventListener("keypress", function(e) {
-    if (e.key === "Enter") sendMessage();
-  });
-</script>
+    document.getElementById("userInput").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") sendMessage();
+    });
+  </script>
 
 </body>
 </html>
