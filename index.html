@@ -43,8 +43,9 @@
       max-width: 60%;
       padding: 12px 14px;
       border-radius: 12px;
-      line-height: 1.5;
+      line-height: 1.6;
       font-size: 14px;
+      white-space: normal;
     }
 
     .user {
@@ -97,10 +98,11 @@
 
     .bot ul {
       padding-left: 20px;
+      margin: 10px 0;
     }
 
     .bot li {
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
   </style>
 </head>
@@ -121,7 +123,8 @@
   </div>
 
   <script>
-    const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat"; // 🔥 REPLACE THIS
+    const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
+
     async function sendMessage() {
       const input = document.getElementById("userInput");
       const chatBox = document.getElementById("chatBox");
@@ -140,8 +143,6 @@
 
       try {
         const controller = new AbortController();
-
-        // ⏱️ Increased timeout (20s)
         const timeout = setTimeout(() => controller.abort(), 20000);
 
         const response = await fetch(webhookURL, {
@@ -163,13 +164,21 @@
         document.getElementById(typingId).remove();
 
         // Extract response safely
-        const botReply =
+        let botReply =
           data.output ||
           data.response ||
           data.text ||
           "⚠️ Sorry, I couldn’t find that information.";
 
-        // 🔥 Render markdown
+        // 🔥 FIX: Convert plain bullets into markdown-friendly format
+        botReply = botReply
+          .replace(/\n/g, "\n\n") // force line breaks
+          .replace(/•/g, "\n•")   // ensure bullets start on new line
+          .replace(/✔/g, "\n✔")
+          .replace(/📌/g, "\n📌")
+          .replace(/🚫/g, "\n🚫");
+
+        // Render markdown
         const formatted = marked.parse(botReply);
 
         chatBox.innerHTML += `<div class="message bot">${formatted}</div>`;
