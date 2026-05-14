@@ -13,9 +13,7 @@ body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(-45deg, #0f172a, #1e293b, #020617, #1e3a8a);
-  background-size: 400% 400%;
-  animation: gradientBG 12s ease infinite;
+  overflow: hidden; /* 🔥 CRITICAL */
 }
 
 @keyframes gradientBG {
@@ -37,13 +35,15 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0; /* 🔥 CRITICAL FIX */
 }
 
 .chat-box {
   flex: 1;
+  min-height: 0; /* 🔥 CRITICAL FIX */
   overflow-y: auto;
   padding: 20px;
-  scroll-behavior: smooth; /* ✅ important */
+  scroll-behavior: smooth;
 }
 
 /* MESSAGE */
