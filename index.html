@@ -82,7 +82,6 @@ body::before {
 .message {
   display: inline-block;
   max-width: 75%;
-  width: fit-content;
   padding:10px 12px;
   border-radius:14px;
   line-height:1.4;
@@ -91,8 +90,11 @@ body::before {
   backdrop-filter: blur(10px);
   box-shadow:0 4px 12px rgba(0,0,0,0.25);
   position:relative;
-}
 
+  /* ✅ FIX */
+  width: auto;
+  word-wrap: break-word;
+}
 /* 🔥 FIX SPACING ISSUE */
 .bot p {
   margin: 4px 0;
