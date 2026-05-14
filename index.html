@@ -153,19 +153,6 @@ body::before {
   margin-top: 2px;  /* 🔥 tighter */
 }
 
-/* COPY BUTTON */
-.copy-btn {
-  position:absolute;
-  top:6px;
-  right:8px;
-  font-size:10px;
-  cursor:pointer;
-  opacity:0;
-}
-.message:hover .copy-btn {
-  opacity:1;
-}
-
 /* INPUT */
 .input-container {
   display:flex;
@@ -258,16 +245,9 @@ function createMessage(content,type){
     <div class="avatar">${type==="user"?"🧑":"🤖"}</div>
     <div class="message ${type}">
       ${content}
-      ${type==="bot" ? `<span class="copy-btn" onclick="copyText(this)">📋</span>` : ""}
     </div>
     <div class="timestamp">${getTime()}</div>
   </div>`;
-}
-
-/* COPY */
-function copyText(el){
-  const text = el.parentElement.innerText;
-  navigator.clipboard.writeText(text);
 }
 
 /* AUTO SCROLL (kept intact) */
