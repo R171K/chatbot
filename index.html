@@ -38,11 +38,11 @@
     }
 
     .message {
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       max-width: 60%;
       padding: 12px 14px;
       border-radius: 12px;
-      line-height: 1.5;
+      line-height: 1.6;
       font-size: 14px;
       white-space: pre-wrap;
       word-break: break-word;
@@ -94,22 +94,18 @@
       color: #facc15;
     }
 
-    /* 🔥 CLEAN SPACING CONTROL */
+    /* ✅ Balanced spacing */
     .bot p {
-      margin: 4px 0;
+      margin: 6px 0;
     }
 
     .bot ul {
-      margin: 4px 0;
+      margin: 6px 0;
       padding-left: 18px;
     }
 
     .bot li {
-      margin-bottom: 3px;
-    }
-
-    .bot br {
-      display: none; /* removes extra visual breaks */
+      margin-bottom: 4px;
     }
   </style>
 </head>
@@ -132,27 +128,16 @@
 <script>
 const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
 
-/* 🔥 FINAL CLEANING FUNCTION */
+/* ✅ SAFE CLEANING (NOT AGGRESSIVE) */
 function cleanText(text) {
   return text
     .replace(/\r/g, "")
-
-    // remove empty lines
-    .replace(/^\s*$/gm, "")
-
-    // collapse big gaps
-    .replace(/\n{3,}/g, "\n\n")
-
-    // fix broken sentences
-    .replace(/([^\n])\n([^\n])/g, "$1 $2")
-
-    // keep intentional spacing
-    .replace(/\n\s*\n/g, "\n\n")
-
+    .replace(/\n{3,}/g, "\n\n") // only remove excessive gaps
+    .replace(/[ \t]+\n/g, "\n")
     .trim();
 }
 
-/* 🔥 AUTO SCROLL (STRONG VERSION) */
+/* ✅ RELIABLE SCROLL */
 function scrollToBottom() {
   const chatBox = document.getElementById("chatBox");
   chatBox.scrollTop = chatBox.scrollHeight;
@@ -203,10 +188,8 @@ async function sendMessage() {
 
     chatBox.innerHTML += `<div class="message bot">${formatted}</div>`;
 
-    // 🔥 DOUBLE ENSURE SCROLL
-    scrollToBottom();
-    setTimeout(scrollToBottom, 50);
-    setTimeout(scrollToBottom, 150);
+    // ensure scroll
+    setTimeout(scrollToBottom, 0);
 
   } catch (error) {
     document.getElementById(typingId).remove();
