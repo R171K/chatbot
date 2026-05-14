@@ -35,17 +35,17 @@
       flex: 1;
       overflow-y: auto;
       padding: 20px;
-      min-height: 0;
     }
 
     .message {
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       max-width: 60%;
       padding: 12px 14px;
       border-radius: 12px;
-      line-height: 1.6;
+      line-height: 1.5;
       font-size: 14px;
       white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .user {
@@ -91,22 +91,25 @@
     }
 
     .bot strong {
-      font-weight: bold;
       color: #facc15;
     }
 
-    /* 🔥 SPACING FIX */
+    /* 🔥 CLEAN SPACING CONTROL */
     .bot p {
-      margin: 6px 0;
+      margin: 4px 0;
     }
 
     .bot ul {
-      margin: 6px 0;
+      margin: 4px 0;
       padding-left: 18px;
     }
 
     .bot li {
-      margin-bottom: 4px;
+      margin-bottom: 3px;
+    }
+
+    .bot br {
+      display: none; /* removes extra visual breaks */
     }
   </style>
 </head>
@@ -129,26 +132,30 @@
 <script>
 const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
 
-// 🔥 CLEAN TEXT (FIXES EXTRA SPACING)
+/* 🔥 FINAL CLEANING FUNCTION */
 function cleanText(text) {
   return text
     .replace(/\r/g, "")
-    .replace(/\n\s*\n\s*\n+/g, "\n\n") // collapse large gaps
-    .replace(/[ \t]+\n/g, "\n")
+
+    // remove empty lines
+    .replace(/^\s*$/gm, "")
+
+    // collapse big gaps
+    .replace(/\n{3,}/g, "\n\n")
+
+    // fix broken sentences
+    .replace(/([^\n])\n([^\n])/g, "$1 $2")
+
+    // keep intentional spacing
+    .replace(/\n\s*\n/g, "\n\n")
+
     .trim();
 }
 
-// 🔥 AUTO SCROLL FIX
+/* 🔥 AUTO SCROLL (STRONG VERSION) */
 function scrollToBottom() {
   const chatBox = document.getElementById("chatBox");
-  const lastMessage = chatBox.lastElementChild;
-
-  if (lastMessage) {
-    lastMessage.scrollIntoView({
-      behavior: "smooth",
-      block: "end"
-    });
-  }
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 async function sendMessage() {
@@ -196,7 +203,10 @@ async function sendMessage() {
 
     chatBox.innerHTML += `<div class="message bot">${formatted}</div>`;
 
-    setTimeout(scrollToBottom, 0);
+    // 🔥 DOUBLE ENSURE SCROLL
+    scrollToBottom();
+    setTimeout(scrollToBottom, 50);
+    setTimeout(scrollToBottom, 150);
 
   } catch (error) {
     document.getElementById(typingId).remove();
