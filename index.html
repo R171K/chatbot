@@ -69,7 +69,8 @@ body::before {
 /* MESSAGE */
 .message-wrapper {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: flex-end;
   gap: 1px; /* 🔥 controls internal spacing */
   align-items: flex-start;
   margin-bottom: 1px; /* 🔥 reduced gap */
@@ -99,7 +100,7 @@ body::before {
 }
 /* 🔥 FIX SPACING ISSUE */
 .bot p {
-  margin: 1px 0;
+  margin: 0;
 }
 
 .bot ul {
@@ -150,7 +151,8 @@ body::before {
 .timestamp {
   font-size: 10px;
   color: #94a3b8;
-  margin-top: 1px;  /* 🔥 tighter */
+  margin-top: 4px;
+  text-align: right;  /* 🔥 tighter */
 }
 
 /* INPUT */
@@ -246,7 +248,10 @@ function createMessage(content,type){
     <div class="message ${type}">
       ${content}
     </div>
-    <div class="timestamp">${getTime()}</div>
+    <div class="message ${type}">
+  ${content}
+  <div class="timestamp">${getTime()}</div>
+</div>
   </div>`;
 }
 
