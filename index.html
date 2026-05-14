@@ -45,7 +45,7 @@
       border-radius: 12px;
       line-height: 1.6;
       font-size: 14px;
-      white-space: pre-wrap; /* ✅ preserve line breaks */
+      white-space: pre-wrap; /* preserve line breaks */
     }
 
     .user {
@@ -122,12 +122,17 @@ function cleanText(text) {
     .trim();
 }
 
-// ✅ SMOOTH AUTO SCROLL
+// ✅ BULLETPROOF AUTO SCROLL (FINAL FIX)
 function scrollToBottom() {
   const chatBox = document.getElementById("chatBox");
-  chatBox.scrollTo({
-    top: chatBox.scrollHeight,
-    behavior: "smooth"
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      chatBox.scrollTo({
+        top: chatBox.scrollHeight,
+        behavior: "smooth"
+      });
+    });
   });
 }
 
@@ -138,12 +143,12 @@ async function sendMessage() {
   const message = input.value.trim();
   if (!message) return;
 
-  // ✅ User message
+  // ✅ USER MESSAGE
   chatBox.innerHTML += `<div class="message user">${message}</div>`;
   input.value = "";
   scrollToBottom();
 
-  // ✅ Typing indicator
+  // ✅ TYPING INDICATOR
   const typingId = "typing-" + Date.now();
   chatBox.innerHTML += `<div id="${typingId}" class="message bot">Typing...</div>`;
   scrollToBottom();
@@ -165,7 +170,7 @@ async function sendMessage() {
 
     const data = await response.json();
 
-    // Remove typing
+    // ❌ REMOVE TYPING
     document.getElementById(typingId).remove();
 
     const botReply =
@@ -174,18 +179,17 @@ async function sendMessage() {
       data.text ||
       "⚠️ Sorry, I couldn’t find that information.";
 
-    // ✅ CLEAN ONLY
+    // ✅ CLEAN TEXT
     const cleaned = cleanText(botReply);
 
-    // ✅ Render markdown (AI controls structure)
+    // ✅ RENDER MARKDOWN
     const formatted = marked.parse(cleaned);
 
+    // ✅ BOT MESSAGE
     chatBox.innerHTML += `<div class="message bot">${formatted}</div>`;
 
-    // 🔥 FORCE SCROLL AFTER RENDER
-    setTimeout(() => {
-      scrollToBottom();
-    }, 50);
+    // 🔥 FINAL SCROLL FIX
+    scrollToBottom();
 
   } catch (error) {
     document.getElementById(typingId).remove();
