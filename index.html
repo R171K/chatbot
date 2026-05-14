@@ -37,12 +37,14 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0; /* 🔥 IMPORTANT FIX */
 }
 
 .chat-box {
   flex: 1;
   overflow-y: auto;
   padding: 20px;
+  min-height: 0; /* 🔥 IMPORTANT FIX */
 }
 
 /* MESSAGE */
@@ -168,9 +170,9 @@ function getTime() {
 function scrollToBottom() {
   const chatBox = document.getElementById("chatBox");
 
-  setTimeout(() => {
+  requestAnimationFrame(() => {
     chatBox.scrollTop = chatBox.scrollHeight;
-  }, 0);
+  });
 }
 
 /* MESSAGE */
