@@ -28,14 +28,14 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      min-height: 0; /* 🔥 CRITICAL FIX */
+      min-height: 0;
     }
 
     .chat-box {
       flex: 1;
       overflow-y: auto;
       padding: 20px;
-      min-height: 0; /* 🔥 CRITICAL FIX */
+      min-height: 0;
     }
 
     .message {
@@ -94,6 +94,20 @@
       font-weight: bold;
       color: #facc15;
     }
+
+    /* 🔥 SPACING FIX */
+    .bot p {
+      margin: 6px 0;
+    }
+
+    .bot ul {
+      margin: 6px 0;
+      padding-left: 18px;
+    }
+
+    .bot li {
+      margin-bottom: 4px;
+    }
   </style>
 </head>
 
@@ -115,12 +129,16 @@
 <script>
 const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
 
-// ✅ CLEAN TEXT
+// 🔥 CLEAN TEXT (FIXES EXTRA SPACING)
 function cleanText(text) {
-  return text.replace(/\n{3,}/g, "\n\n").trim();
+  return text
+    .replace(/\r/g, "")
+    .replace(/\n\s*\n\s*\n+/g, "\n\n") // collapse large gaps
+    .replace(/[ \t]+\n/g, "\n")
+    .trim();
 }
 
-// 🔥 FINAL AUTO-SCROLL (BEST METHOD)
+// 🔥 AUTO SCROLL FIX
 function scrollToBottom() {
   const chatBox = document.getElementById("chatBox");
   const lastMessage = chatBox.lastElementChild;
@@ -140,12 +158,10 @@ async function sendMessage() {
   const message = input.value.trim();
   if (!message) return;
 
-  // USER MESSAGE
   chatBox.innerHTML += `<div class="message user">${message}</div>`;
   input.value = "";
   scrollToBottom();
 
-  // TYPING
   const typingId = "typing-" + Date.now();
   chatBox.innerHTML += `<div id="${typingId}" class="message bot">Typing...</div>`;
   scrollToBottom();
@@ -156,7 +172,9 @@ async function sendMessage() {
 
     const response = await fetch(webhookURL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({ chatInput: message }),
       signal: controller.signal
     });
@@ -165,7 +183,6 @@ async function sendMessage() {
 
     const data = await response.json();
 
-    // REMOVE TYPING
     document.getElementById(typingId).remove();
 
     const botReply =
@@ -179,7 +196,6 @@ async function sendMessage() {
 
     chatBox.innerHTML += `<div class="message bot">${formatted}</div>`;
 
-    // 🔥 FORCE SCROLL AFTER DOM UPDATE
     setTimeout(scrollToBottom, 0);
 
   } catch (error) {
@@ -195,7 +211,6 @@ async function sendMessage() {
   }
 }
 
-// ENTER KEY
 document.getElementById("userInput").addEventListener("keypress", function(e) {
   if (e.key === "Enter") sendMessage();
 });
