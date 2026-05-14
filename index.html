@@ -94,7 +94,6 @@
       color: #facc15;
     }
 
-    /* ✅ Balanced spacing */
     .bot p {
       margin: 6px 0;
     }
@@ -128,16 +127,22 @@
 <script>
 const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
 
-/* ✅ SAFE CLEANING (NOT AGGRESSIVE) */
+/* ✅ FINAL CLEAN TEXT (FIXES QUESTION ISSUE) */
 function cleanText(text) {
   return text
     .replace(/\r/g, "")
-    .replace(/\n{3,}/g, "\n\n") // only remove excessive gaps
-    .replace(/[ \t]+\n/g, "\n")
+
+    // 🔥 REMOVE QUESTION LINES
+    .replace(/^[A-Z][^\n]*\?\s*$/gm, "")
+    .replace(/^(What|When|Can|How|Why|Is|Do|Does|Will)[^\n]*\?\s*$/gim, "")
+
+    // keep spacing clean (not aggressive)
+    .replace(/\n{3,}/g, "\n\n")
+
     .trim();
 }
 
-/* ✅ RELIABLE SCROLL */
+/* ✅ AUTO SCROLL FIX */
 function scrollToBottom() {
   const chatBox = document.getElementById("chatBox");
   chatBox.scrollTop = chatBox.scrollHeight;
@@ -188,8 +193,7 @@ async function sendMessage() {
 
     chatBox.innerHTML += `<div class="message bot">${formatted}</div>`;
 
-    // ensure scroll
-    setTimeout(scrollToBottom, 0);
+    setTimeout(scrollToBottom, 50);
 
   } catch (error) {
     document.getElementById(typingId).remove();
