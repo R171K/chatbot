@@ -45,7 +45,7 @@
       border-radius: 12px;
       line-height: 1.6;
       font-size: 14px;
-      white-space: pre-wrap; /* ✅ PRESERVE LINE BREAKS */
+      white-space: pre-wrap; /* ✅ preserve line breaks */
     }
 
     .user {
@@ -90,19 +90,9 @@
       background: #16a34a;
     }
 
-    /* Markdown styling */
     .bot strong {
       font-weight: bold;
       color: #facc15;
-    }
-
-    .bot ul {
-      padding-left: 20px;
-      margin: 10px 0;
-    }
-
-    .bot li {
-      margin-bottom: 6px;
     }
   </style>
 </head>
@@ -122,79 +112,99 @@
     </div>
   </div>
 
-  <script>
-    const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
+<script>
+const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
 
-    // ✅ CLEAN FORMATTER (NO BULLET FORCING)
-    function cleanText(text) {
-      return text
-        .replace(/\n{3,}/g, "\n\n") // remove excessive spacing
-        .trim();
-    }
+// ✅ CLEAN TEXT ONLY (no bullet manipulation)
+function cleanText(text) {
+  return text
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
 
-    async function sendMessage() {
-      const input = document.getElementById("userInput");
-      const chatBox = document.getElementById("chatBox");
+// ✅ SMOOTH AUTO SCROLL
+function scrollToBottom() {
+  const chatBox = document.getElementById("chatBox");
+  chatBox.scrollTo({
+    top: chatBox.scrollHeight,
+    behavior: "smooth"
+  });
+}
 
-      const message = input.value.trim();
-      if (!message) return;
+async function sendMessage() {
+  const input = document.getElementById("userInput");
+  const chatBox = document.getElementById("chatBox");
 
-      chatBox.innerHTML += `<div class="message user">${message}</div>`;
-      input.value = "";
+  const message = input.value.trim();
+  if (!message) return;
 
-      const typingId = "typing-" + Date.now();
-      chatBox.innerHTML += `<div id="${typingId}" class="message bot">Typing...</div>`;
-      chatBox.scrollTop = chatBox.scrollHeight;
+  // ✅ User message
+  chatBox.innerHTML += `<div class="message user">${message}</div>`;
+  input.value = "";
+  scrollToBottom();
 
-      try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 20000);
+  // ✅ Typing indicator
+  const typingId = "typing-" + Date.now();
+  chatBox.innerHTML += `<div id="${typingId}" class="message bot">Typing...</div>`;
+  scrollToBottom();
 
-        const response = await fetch(webhookURL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ chatInput: message }),
-          signal: controller.signal
-        });
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
 
-        clearTimeout(timeout);
-
-        const data = await response.json();
-
-        document.getElementById(typingId).remove();
-
-        const botReply =
-          data.output ||
-          data.response ||
-          data.text ||
-          "⚠️ Sorry, I couldn’t find that information.";
-
-        // ✅ CLEAN ONLY (no bullet manipulation)
-        const cleaned = cleanText(botReply);
-
-        // ✅ RENDER MARKDOWN (AI controls bullets)
-        const formatted = marked.parse(cleaned);
-
-        chatBox.innerHTML += `<div class="message bot">${formatted}</div>`;
-        chatBox.scrollTop = chatBox.scrollHeight;
-
-      } catch (error) {
-        document.getElementById(typingId).remove();
-
-        chatBox.innerHTML += `
-          <div class="message bot">
-            ⚠️ Connection issue. Please try again.
-          </div>
-        `;
-      }
-    }
-
-    document.getElementById("userInput").addEventListener("keypress", function(e) {
-      if (e.key === "Enter") sendMessage();
+    const response = await fetch(webhookURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ chatInput: message }),
+      signal: controller.signal
     });
-  </script>
+
+    clearTimeout(timeout);
+
+    const data = await response.json();
+
+    // Remove typing
+    document.getElementById(typingId).remove();
+
+    const botReply =
+      data.output ||
+      data.response ||
+      data.text ||
+      "⚠️ Sorry, I couldn’t find that information.";
+
+    // ✅ CLEAN ONLY
+    const cleaned = cleanText(botReply);
+
+    // ✅ Render markdown (AI controls structure)
+    const formatted = marked.parse(cleaned);
+
+    chatBox.innerHTML += `<div class="message bot">${formatted}</div>`;
+
+    // 🔥 FORCE SCROLL AFTER RENDER
+    setTimeout(() => {
+      scrollToBottom();
+    }, 50);
+
+  } catch (error) {
+    document.getElementById(typingId).remove();
+
+    chatBox.innerHTML += `
+      <div class="message bot">
+        ⚠️ Connection issue. Please try again.
+      </div>
+    `;
+
+    scrollToBottom();
+  }
+}
+
+// ✅ ENTER KEY SUPPORT
+document.getElementById("userInput").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") sendMessage();
+});
+</script>
 
 </body>
 </html>
