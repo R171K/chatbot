@@ -164,13 +164,13 @@ function getTime() {
   return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 }
 
-/* SCROLL FIX */
+/* ✅ FIXED RELIABLE SCROLL */
 function scrollToBottom() {
   const chatBox = document.getElementById("chatBox");
-  chatBox.scrollTo({
-    top: chatBox.scrollHeight,
-    behavior: "smooth"
-  });
+
+  setTimeout(() => {
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }, 0);
 }
 
 /* MESSAGE */
@@ -204,10 +204,12 @@ async function sendMessage() {
 
   const chatBox = document.getElementById("chatBox");
 
+  // user message
   chatBox.insertAdjacentHTML("beforeend", createMessage(msg, "user"));
   input.value = "";
   scrollToBottom();
 
+  // typing indicator
   const id = "t-" + Date.now();
   chatBox.insertAdjacentHTML("beforeend", typingBubble(id));
   scrollToBottom();
@@ -229,16 +231,21 @@ async function sendMessage() {
       createMessage(marked.parse(reply), "bot")
     );
 
+    // ✅ bulletproof scroll after render
     requestAnimationFrame(() => {
-      scrollToBottom();
+      requestAnimationFrame(() => {
+        scrollToBottom();
+      });
     });
 
   } catch {
     document.getElementById(id).remove();
+
     chatBox.insertAdjacentHTML(
       "beforeend",
       createMessage("⚠️ Connection issue", "bot")
     );
+
     scrollToBottom();
   }
 }
