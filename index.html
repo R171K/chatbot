@@ -68,10 +68,12 @@ body::before {
 
 /* MESSAGE */
 .message-wrapper {
-  display:flex;
-  flex-direction:column;
-  margin-bottom:10px;
-  animation:fadeIn .25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 2px; /* 🔥 controls internal spacing */
+  align-items: flex-start;
+  margin-bottom: 6px; /* 🔥 reduced gap */
+  animation: fadeIn .25s ease;
 }
 
 @keyframes fadeIn {
@@ -82,27 +84,27 @@ body::before {
 .message {
   display: inline-block;
   max-width: 75%;
-  padding:10px 12px;
-  border-radius:14px;
-  line-height:1.4;
-  font-size:14px;
-  white-space:pre-wrap;
+  padding: 8px 12px;   /* 🔥 tighter */
+  border-radius: 14px;
+  line-height: 1.35;   /* 🔥 tighter text */
+  font-size: 14px;
+  white-space: pre-wrap;
   backdrop-filter: blur(10px);
-  box-shadow:0 4px 12px rgba(0,0,0,0.25);
-  position:relative;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  position: relative;
 
-  /* ✅ FIX */
-  width: auto;
-  word-wrap: break-word;
+  width: fit-content;      /* 🔥 BETTER than auto here */
+  min-width: 40px;         /* avoids tiny bubble collapse */
+  word-break: break-word;
 }
 /* 🔥 FIX SPACING ISSUE */
 .bot p {
-  margin: 2px 0;
+  margin: 1px 0;
 }
 
 .bot ul {
   margin: 2px 0;
-  padding-left: 16px;
+  padding-left: 14px;
 }
 
 .bot li {
@@ -114,8 +116,8 @@ body::before {
   content:"";
   position:absolute;
   right:-6px;
-  bottom:4px;
-  border:4px solid transparent;
+  bottom:6px;
+  border:6px solid transparent;
   border-left-color:#2563eb;
 }
 
@@ -123,8 +125,8 @@ body::before {
   content:"";
   position:absolute;
   left:-6px;
-  bottom:4px;
-  border:4px solid transparent;
+  bottom:6px;
+  border:6px solid transparent;
   border-right-color:rgba(30,41,59,0.85);
 }
 
@@ -141,14 +143,14 @@ body::before {
 }
 
 .avatar {
-  font-size:13px;
-  margin-bottom:2px;
+  font-size: 12px;
+  margin-bottom: 2px; /* 🔥 smaller */
 }
 
 .timestamp {
-  font-size:11px;
-  color:#94a3b8;
-  margin-top:3px;
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 2px;  /* 🔥 tighter */
 }
 
 /* COPY BUTTON */
