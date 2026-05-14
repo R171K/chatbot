@@ -70,7 +70,7 @@ body::before {
 .message-wrapper {
   display:flex;
   flex-direction:column;
-  margin-bottom:12px;
+  margin-bottom:10px;
   animation:fadeIn .25s ease;
 }
 
@@ -80,15 +80,31 @@ body::before {
 }
 
 .message {
-  max-width:fit-content;
-  padding:12px 14px;
-  border-radius:16px;
-  line-height:1.5;
+  display: inline-block;
+  max-width: 75%;
+  width: fit-content;
+  padding:10px 12px;
+  border-radius:14px;
+  line-height:1.4;
   font-size:14px;
   white-space:pre-wrap;
   backdrop-filter: blur(10px);
   box-shadow:0 4px 12px rgba(0,0,0,0.25);
   position:relative;
+}
+
+/* 🔥 FIX SPACING ISSUE */
+.bot p {
+  margin: 4px 0;
+}
+
+.bot ul {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+
+.bot li {
+  margin-bottom: 2px;
 }
 
 /* tails */
@@ -111,17 +127,26 @@ body::before {
 }
 
 .user-wrapper {align-items:flex-end;}
-.user {background:#2563eb;color:white;}
+.user {
+  background:#2563eb;
+  color:white;
+}
 
 .bot-wrapper {align-items:flex-start;}
-.bot {background:rgba(30,41,59,0.85);color:#e2e8f0;}
+.bot {
+  background:rgba(30,41,59,0.85);
+  color:#e2e8f0;
+}
 
-.avatar {font-size:13px;margin-bottom:3px;}
+.avatar {
+  font-size:13px;
+  margin-bottom:2px;
+}
 
 .timestamp {
   font-size:11px;
   color:#94a3b8;
-  margin-top:4px;
+  margin-top:3px;
 }
 
 /* COPY BUTTON */
@@ -132,7 +157,6 @@ body::before {
   font-size:10px;
   cursor:pointer;
   opacity:0;
-  transition:0.2s;
 }
 .message:hover .copy-btn {
   opacity:1;
@@ -170,7 +194,6 @@ button {
 
 button:disabled {
   opacity:0.5;
-  cursor:not-allowed;
 }
 
 /* QUICK REPLIES */
@@ -209,7 +232,7 @@ button:disabled {
 <script>
 const webhookURL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev/webhook/17c40753-d877-4e30-9358-76996323449b/chat";
 
-/* CLEAN TEXT (UNCHANGED) */
+/* CLEAN TEXT (minimal change) */
 function cleanText(text){
   return text
     .replace(/\r/g,"")
@@ -243,7 +266,7 @@ function copyText(el){
   navigator.clipboard.writeText(text);
 }
 
-/* AUTO SCROLL (UNCHANGED) */
+/* AUTO SCROLL (kept intact) */
 const chatBox = document.getElementById("chatBox");
 new MutationObserver(()=>chatBox.scrollTop=chatBox.scrollHeight)
 .observe(chatBox,{childList:true});
