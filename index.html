@@ -443,7 +443,8 @@
 
       } catch (err) {
         document.getElementById("typing-indicator")?.remove();
-        appendMessage("bot", "⚠️ Could not reach the backend. Please try again later.");
+        appendMessage("bot", `⚠️ Error: ${err.message}`);
+        console.error("Full error:", err);
       }
     }
 
