@@ -335,7 +335,7 @@
   </div>
 
   <script>
-    const API_URL = "http://127.0.0.1:8000/chat";
+    const API_URL = "https://arbitrary-enjoyment-ounce.ngrok-free.dev";
 
     const textarea = document.getElementById("userInput");
     const chatBox  = document.getElementById("chatBox");
@@ -426,9 +426,14 @@
       try {
         const res = await fetch(API_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true"
+          },
           body: JSON.stringify({ chatInput: message })
         });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data = await res.json();
         document.getElementById("typing-indicator")?.remove();
@@ -438,7 +443,7 @@
 
       } catch (err) {
         document.getElementById("typing-indicator")?.remove();
-        appendMessage("bot", "⚠️ Backend not reachable. Is FastAPI running on port 8000?");
+        appendMessage("bot", "⚠️ Could not reach the backend. Please try again later.");
       }
     }
 
