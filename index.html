@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radhe Shyam — Upgraded Bento Concepts (21st.dev-grade)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Reset & Tokens ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    :root {
+      --gold:#EC9B13; --gold-soft:#F5B93A; --gold-deep:#C8780A;
+      --orange:#F26B21; --ink:#241608; --cream:#FBF4EA; --muted:#8A7658;
+      --paper:#FFF9EE; --line:rgba(140,90,20,.15);
+      --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    }
+    @property --ang { syntax:'<angle>'; initial-value:0deg; inherits:false; }
+
+    html { scroll-behavior:smooth; }
+    body {
+      font-family:'Nunito',sans-serif; color:var(--ink); min-height:100vh;
+      background:
+        radial-gradient(1200px 600px at 12% -5%, #FFF1DA 0%, transparent 55%),
+        radial-gradient(1000px 620px at 100% 110%, #FDE7D2 0%, transparent 55%),
+        linear-gradient(180deg,#FDF7EF 0%,#F7EEE1 100%);
+    }
+
+    .site-header {
+      background:var(--orange); padding:.55rem 2rem; display:flex; align-items:center;
+      justify-content:space-between; gap:1rem; position:sticky; top:0; z-index:100;
+      box-shadow:0 2px 16px rgba(242,107,33,.32);
+    }
+    .brand { display:flex; align-items:center; gap:.6rem; color:#fff; }
+    .brand .mark {
+      height:38px; width:38px; border-radius:50%; background:rgba(255,255,255,.22);
+      border:2px solid rgba(255,255,255,.5); display:grid; place-items:center;
+      font-family:'Playfair Display',serif; font-weight:700; font-size:.9rem;
+    }
+    .brand b { font-weight:800; font-size:.95rem; }
+    .header-note { color:#fff; font-size:.78rem; font-weight:700; opacity:.9; }
+
+    .intro { text-align:center; padding:2.8rem 1.4rem .4rem; }
+    .intro .kick {
+      display:inline-block; font-size:.72rem; font-weight:800; letter-spacing:.18em;
+      text-transform:uppercase; color:var(--gold-deep);
+      background:rgba(236,155,19,.14); padding:.4rem .9rem; border-radius:50px;
+    }
+    .intro h1 { font-family:'Playfair Display',serif; font-weight:700; font-size:clamp(1.9rem,4.4vw,2.9rem); line-height:1.1; margin-top:.9rem; }
+    .intro h1 em { font-style:italic; color:var(--orange); }
+    .intro p { max-width:660px; margin:.9rem auto 0; color:var(--muted); font-size:1rem; line-height:1.55; }
+    .intro .hint { margin-top:.8rem; font-size:.8rem; color:var(--gold-deep); font-weight:700; }
+
+    .wrap { max-width:1180px; margin:0 auto; padding:0 1.4rem; }
+    .concept { padding:4rem 0; border-top:2px dashed rgba(200,120,10,.22); }
+    .c-head { text-align:center; margin-bottom:2.1rem; }
+    .c-tag {
+      display:inline-block; font-size:.7rem; font-weight:800; letter-spacing:.12em;
+      text-transform:uppercase; color:#fff;
+      background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+      padding:.42rem 1rem; border-radius:50px; box-shadow:0 8px 18px rgba(200,120,10,.28);
+    }
+    .c-title { font-family:'Playfair Display',serif; font-weight:700; font-size:clamp(1.5rem,3.2vw,2.1rem); margin-top:.85rem; }
+    .c-desc { max-width:620px; margin:.55rem auto 0; color:var(--muted); font-size:.94rem; line-height:1.5; }
+    .c-desc b { color:var(--gold-deep); }
+
+    /* ─── Shared media tile ──────────────────────────────────── */
+    .media {
+      position:absolute; inset:0; display:grid; place-items:center;
+      background:linear-gradient(140deg,var(--g1,#F2822A),var(--g2,#C8780A));
+      transition:transform .6s cubic-bezier(.22,1,.36,1);
+    }
+    .media::before {
+      content:''; position:absolute; inset:0;
+      background:radial-gradient(120% 85% at 22% 12%, rgba(255,255,255,.4), transparent 52%);
+      mix-blend-mode:screen;
+    }
+    .media::after { content:''; position:absolute; inset:0; background:linear-gradient(180deg,transparent 52%,rgba(20,12,2,.34)); }
+    .media > span { position:relative; z-index:1; font-size:var(--emoji,2.6rem); line-height:1; filter:drop-shadow(0 10px 16px rgba(0,0,0,.3)); }
+    .clip { position:absolute; inset:0; border-radius:inherit; overflow:hidden; }
+
+    /* frosted chip — the Option-1 DNA element reused across variations */
+    .chip {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.5rem .75rem; border-radius:13px;
+      background:rgba(255,255,255,.15);
+      backdrop-filter:blur(14px) saturate(150%); -webkit-backdrop-filter:blur(14px) saturate(150%);
+      border:1px solid rgba(255,255,255,.42);
+      box-shadow:0 8px 20px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.5);
+    }
+    .chip .aw { width:22px; height:22px; border-radius:7px; display:grid; place-items:center; font-size:.75rem; background:rgba(255,255,255,.92); color:var(--ink); flex:none; }
+    .chip .nm { font-weight:900; font-size:.92rem; color:#fff; text-shadow:0 1px 6px rgba(0,0,0,.45); }
+    @supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))) { .chip { background:rgba(28,18,6,.62); } }
+
+    /* ═══ U1 · SPOTLIGHT FRAME (Magic-Card border glow) ═══════ */
+    .u1-grid { display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:230px; gap:16px; perspective:1500px; }
+    .u1-card {
+      position:relative; border-radius:20px; text-decoration:none; transform-style:preserve-3d;
+      background:radial-gradient(300px circle at var(--mx,50%) var(--my,50%), rgba(245,185,58,.95), rgba(245,185,58,.16) 45%, rgba(255,255,255,.09) 75%);
+      box-shadow:0 18px 38px rgba(30,18,4,.3);
+      transition:transform .5s cubic-bezier(.22,1,.36,1), box-shadow .5s;
+    }
+    .u1-card.wide { grid-column:span 2; }
+    .u1-card:hover { box-shadow:0 40px 66px rgba(30,18,4,.42); z-index:5; }
+    .u1-in { position:absolute; inset:1.5px; border-radius:18.5px; background:#20160a; overflow:hidden; }
+    .u1-media { position:absolute; left:0; right:0; top:0; height:60%; --emoji:2.7rem; }
+    .u1-media .media::after { background:linear-gradient(180deg,transparent 40%,#20160a 99%); }
+    .u1-spot { position:absolute; inset:0; pointer-events:none; opacity:0; transition:opacity .4s;
+      background:radial-gradient(340px circle at var(--mx,50%) var(--my,50%), rgba(236,155,19,.16), transparent 55%); }
+    .u1-card:hover .u1-spot { opacity:1; }
+    .u1-body { position:absolute; left:0; right:0; bottom:0; height:40%; display:flex; align-items:center; gap:.7rem; padding:0 1rem; }
+    .u1-ic { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; font-size:1.15rem;
+      background:rgba(255,255,255,.08); border:1px solid rgba(245,185,58,.35); flex:none; }
+    .u1-tx { min-width:0; }
+    .u1-tx .nm { display:block; font-weight:900; font-size:1rem; color:#F6E7C8; line-height:1.15; }
+    .u1-tx .ct { font-size:.68rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:rgba(246,231,200,.55); }
+    .u1-go { margin-left:auto; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-size:.85rem;
+      background:rgba(245,185,58,.14); color:var(--gold-soft); border:1px solid rgba(245,185,58,.4);
+      transition:background .3s, color .3s, transform .3s; flex:none; }
+    .u1-card:hover .u1-go { background:var(--gold-soft); color:var(--ink); transform:rotate(45deg); }
+
+    /* ═══ U2 · EXPANDING GALLERY (hover-expand columns) ═══════ */
+    .u2-row { display:flex; gap:14px; height:360px; }
+    .u2-card {
+      position:relative; flex:1; min-width:0; border-radius:22px; overflow:hidden; text-decoration:none;
+      box-shadow:0 16px 32px rgba(60,36,6,.18);
+      transition:flex .55s cubic-bezier(.22,1,.36,1), box-shadow .45s;
+    }
+    .u2-card:hover { flex:2.7; box-shadow:0 30px 54px rgba(60,36,6,.3); }
+    .u2-card .media { --emoji:2.6rem; }
+    .u2-card:hover .media { transform:scale(1.06); }
+    .u2-tag {
+      position:absolute; left:50%; bottom:18px; transform:translateX(-50%);
+      writing-mode:vertical-rl; rotate:180deg;
+      font-weight:900; font-size:.9rem; color:#fff; text-shadow:0 1px 8px rgba(0,0,0,.55);
+      letter-spacing:.04em; white-space:nowrap; transition:opacity .3s;
+    }
+    .u2-card:hover .u2-tag { opacity:0; }
+    .u2-label { position:absolute; left:16px; bottom:16px; opacity:0; transform:translateY(14px); transition:opacity .4s .12s, transform .4s .12s; }
+    .u2-label .ct { display:block; margin-top:.35rem; font-size:.7rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.85); text-shadow:0 1px 6px rgba(0,0,0,.5); }
+    .u2-card:hover .u2-label { opacity:1; transform:none; }
+
+    /* ═══ U3 · REVEAL DOCK (slide-up sub-category panel) ══════ */
+    .u3-grid { display:grid; grid-template-columns:repeat(3,1fr); grid-auto-rows:260px; gap:18px; perspective:1500px; }
+    .u3-card {
+      position:relative; border-radius:22px; text-decoration:none; transform-style:preserve-3d;
+      --emoji:3rem; box-shadow:0 18px 38px rgba(60,36,6,.2);
+      transition:transform .5s cubic-bezier(.22,1,.36,1), box-shadow .5s;
+    }
+    .u3-card:hover { box-shadow:0 40px 66px rgba(60,36,6,.32); z-index:5; }
+    .u3-chip { position:absolute; top:14px; left:14px; z-index:3; transform:translateZ(50px); transition:transform .5s cubic-bezier(.22,1,.36,1); }
+    .u3-card:hover .u3-chip { transform:translateZ(84px); }
+    /* mask clips the hidden panel inside the card without flattening the 3D chip */
+    .u3-mask { position:absolute; inset:0; border-radius:inherit; overflow:hidden; z-index:3; pointer-events:none; }
+    .u3-panel {
+      position:absolute; left:10px; right:10px; bottom:10px;
+      padding:.85rem .9rem .9rem; border-radius:16px;
+      background:linear-gradient(180deg, rgba(24,14,4,.52), rgba(24,14,4,.84));
+      backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+      border:1px solid rgba(255,255,255,.16);
+      transform:translateY(calc(100% + 16px)); transition:transform .5s cubic-bezier(.22,1,.36,1);
+    }
+    .u3-card:hover .u3-panel { transform:translateY(0); }
+    .u3-chips { display:flex; gap:.4rem; flex-wrap:wrap; }
+    .u3-sub {
+      font-size:.66rem; font-weight:800; color:#fff; padding:.32rem .62rem; border-radius:50px;
+      background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.26);
+      opacity:0; transform:translateY(8px); transition:opacity .35s, transform .35s;
+    }
+    .u3-card:hover .u3-sub { opacity:1; transform:none; }
+    .u3-card:hover .u3-sub:nth-child(1) { transition-delay:.10s; }
+    .u3-card:hover .u3-sub:nth-child(2) { transition-delay:.17s; }
+    .u3-card:hover .u3-sub:nth-child(3) { transition-delay:.24s; }
+    .u3-cta { display:inline-block; margin-top:.55rem; font-size:.76rem; font-weight:900; color:var(--gold-soft); opacity:0; transition:opacity .35s .28s; }
+    .u3-card:hover .u3-cta { opacity:1; }
+
+    /* ═══ U4 · SPLIT EDITORIAL (content | media, magnetic CTA) ═ */
+    .u4-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; perspective:1600px; }
+    .u4-card {
+      position:relative; display:grid; grid-template-columns:1fr 1.15fr; gap:18px; min-height:235px;
+      border-radius:24px; background:var(--paper); border:1px solid var(--line);
+      padding:22px; text-decoration:none; transform-style:preserve-3d;
+      box-shadow:0 14px 30px rgba(90,54,8,.12);
+      transition:transform .45s cubic-bezier(.22,1,.36,1), box-shadow .45s;
+    }
+    .u4-card:hover { box-shadow:0 32px 56px rgba(90,54,8,.22); z-index:5; }
+    .u4-info { display:flex; flex-direction:column; min-width:0; }
+    .u4-eyebrow { font-size:.62rem; font-weight:800; letter-spacing:.22em; text-transform:uppercase; color:var(--gold-deep); }
+    .u4-name { font-family:'Playfair Display',serif; font-weight:700; font-size:1.45rem; line-height:1.1; margin-top:.5rem; }
+    .u4-count { font-size:.78rem; font-weight:700; color:var(--muted); margin-top:.3rem; }
+    .u4-btn {
+      margin-top:auto; width:44px; height:44px; border-radius:50%; display:grid; place-items:center;
+      background:var(--ink); color:#fff; font-size:.95rem;
+      transform:translate(calc(var(--px,0)*14px), calc(var(--py,0)*14px));
+      transition:background .3s, transform .2s ease-out;
+    }
+    .u4-card:hover .u4-btn { background:var(--gold-deep); }
+    .u4-media {
+      position:relative; border-radius:16px; overflow:hidden; --emoji:2.8rem;
+      transform:translateZ(34px) rotateY(calc(var(--px,0)*-7deg)) rotateX(calc(var(--py,0)*7deg));
+      transition:transform .25s ease-out; box-shadow:0 14px 28px rgba(60,36,6,.22);
+    }
+
+    /* ═══ U5 · BORDER BEAM VAULT (traveling light border) ═════ */
+    .u5-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; perspective:1500px; }
+    .u5-card {
+      position:relative; border-radius:20px; padding:1.5px; text-decoration:none; transform-style:preserve-3d;
+      background:rgba(140,90,20,.2);
+      box-shadow:0 14px 30px rgba(90,54,8,.14);
+      transition:transform .5s cubic-bezier(.22,1,.36,1), box-shadow .5s;
+    }
+    .u5-card::before {
+      content:''; position:absolute; inset:0; border-radius:inherit; opacity:0; transition:opacity .35s;
+      background:conic-gradient(from var(--ang), transparent 0deg 300deg, #fff3d6 322deg, var(--gold-soft) 334deg, var(--gold) 346deg, transparent 360deg);
+    }
+    .u5-card:hover::before { opacity:1; animation:u5beam 3s linear infinite; }
+    @keyframes u5beam { to { --ang:360deg; } }
+    .u5-card:hover { box-shadow:0 30px 52px rgba(90,54,8,.24); z-index:5; }
+    .u5-in { position:relative; border-radius:18.5px; background:var(--paper); overflow:hidden; height:100%; display:flex; flex-direction:column; }
+    .u5-top { display:flex; align-items:center; justify-content:space-between; padding:.85rem .9rem 0; }
+    .u5-ic { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; font-size:1.1rem; background:#fff; border:1px solid var(--line); box-shadow:0 4px 10px rgba(90,54,8,.1); }
+    .u5-pill { font-size:.64rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; color:var(--gold-deep); background:rgba(236,155,19,.14); padding:.3rem .6rem; border-radius:50px; }
+    .u5-media { position:relative; margin:.8rem .9rem; height:120px; border-radius:12px; overflow:hidden; --emoji:2.3rem; }
+    .u5-foot { display:flex; align-items:center; justify-content:space-between; padding:0 .95rem .95rem; margin-top:auto; }
+    .u5-foot .nm { font-weight:900; font-size:.98rem; }
+    .u5-go { font-size:.74rem; font-weight:900; color:var(--gold-deep); display:inline-flex; align-items:center; gap:.3rem; }
+    .u5-go::after { content:'→'; transition:transform .3s; }
+    .u5-card:hover .u5-go::after { transform:translateX(4px); }
+
+    /* ═══ U6 · GALLERY FAN (product thumbnails fan out) ═══════ */
+    .u6-grid { display:grid; grid-template-columns:repeat(3,1fr); grid-auto-rows:250px; gap:18px; padding-top:56px; perspective:1500px; }
+    .u6-card {
+      position:relative; border-radius:22px; text-decoration:none; transform-style:preserve-3d;
+      --emoji:3rem; box-shadow:0 18px 38px rgba(60,36,6,.2);
+      transition:transform .5s cubic-bezier(.22,1,.36,1), box-shadow .5s;
+    }
+    .u6-card:hover { box-shadow:0 40px 66px rgba(60,36,6,.32); z-index:6; }
+    .u6-thumb {
+      position:absolute; top:6px; right:18px; width:62px; height:62px; border-radius:14px; overflow:hidden;
+      box-shadow:0 10px 22px rgba(20,12,2,.3); border:2px solid #fff;
+      opacity:0; transform:translateY(26px) scale(.55); z-index:0;
+      transition:transform .5s cubic-bezier(.22,1,.36,1), opacity .4s;
+    }
+    .u6-thumb .media { --emoji:1.5rem; }
+    .u6-card:hover .u6-thumb { opacity:1; }
+    .u6-card:hover .u6-thumb.t1 { transform:translate(-124px,-48px) rotate(-11deg); transition-delay:.05s; }
+    .u6-card:hover .u6-thumb.t2 { transform:translate(-62px,-58px) rotate(-2deg); transition-delay:.11s; }
+    .u6-card:hover .u6-thumb.t3 { transform:translate(0,-48px) rotate(9deg);   transition-delay:.17s; }
+    .u6-main { position:absolute; inset:0; border-radius:inherit; overflow:hidden; z-index:1; }
+    .u6-label { position:absolute; left:16px; bottom:16px; z-index:3; transform:translateZ(54px); transition:transform .5s cubic-bezier(.22,1,.36,1); }
+    .u6-card:hover .u6-label { transform:translateZ(96px) translateY(-2px); }
+
+    /* ═══ U7 · TYPE MASK (kinetic gradient typography) ════════ */
+    .u7-grid { display:grid; grid-template-columns:repeat(3,1fr); grid-auto-rows:240px; gap:18px; perspective:1500px; }
+    .u7-card {
+      position:relative; border-radius:22px; text-decoration:none; overflow:hidden; transform-style:preserve-3d;
+      background:var(--paper); border:1px solid var(--line);
+      box-shadow:0 14px 30px rgba(90,54,8,.12);
+      transition:transform .5s cubic-bezier(.22,1,.36,1), box-shadow .5s;
+    }
+    .u7-card:hover { box-shadow:0 32px 56px rgba(90,54,8,.24); z-index:5; }
+    .u7-media { position:absolute; inset:0; opacity:0; transition:opacity .5s; --emoji:3rem; }
+    .u7-card:hover .u7-media { opacity:1; }
+    .u7-num { position:absolute; top:1rem; right:1.15rem; z-index:2; font-family:'Playfair Display',serif; font-size:1rem; color:var(--gold-deep); transition:color .4s; }
+    .u7-card:hover .u7-num { color:rgba(255,255,255,.85); }
+    .u7-name {
+      position:absolute; left:1.15rem; right:1rem; bottom:3.3rem; z-index:2;
+      font-weight:900; font-size:clamp(1.5rem,2.6vw,2rem); line-height:.98; letter-spacing:-.01em;
+      background:linear-gradient(140deg,var(--g1),var(--g2));
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      transition:transform .45s cubic-bezier(.22,1,.36,1);
+    }
+    .u7-card:hover .u7-name { background:none; color:#fff; text-shadow:0 2px 12px rgba(0,0,0,.45); transform:translateY(-4px); }
+    .u7-count { position:absolute; left:1.2rem; bottom:1.3rem; z-index:2; font-size:.68rem; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); transition:color .4s; }
+    .u7-card:hover .u7-count { color:rgba(255,255,255,.85); }
+    .u7-aw { position:absolute; right:1rem; bottom:1rem; z-index:2; }
+    .u7-aw .chip { padding:.42rem .5rem; border-radius:11px; }
+
+    /* ═══ U8 · PRIME (Option 1, production-grade upgrade) ═════ */
+    .u8-grid { position:relative; display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:205px; gap:16px; perspective:1500px; }
+    .u8-grid::before {
+      content:''; position:absolute; inset:-9% -5%; z-index:0; filter:blur(64px); opacity:.8; border-radius:44px; pointer-events:none;
+      background:
+        radial-gradient(40% 60% at 18% 28%, rgba(245,150,40,.5), transparent 60%),
+        radial-gradient(46% 55% at 82% 18%, rgba(120,182,190,.4), transparent 60%),
+        radial-gradient(52% 62% at 60% 92%, rgba(236,120,50,.5), transparent 60%);
+    }
+    .u8-card {
+      position:relative; border-radius:22px; text-decoration:none; transform-style:preserve-3d;
+      --emoji:3.1rem; border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 18px 38px rgba(60,36,6,.2), 0 4px 10px rgba(60,36,6,.12);
+      transition:transform .5s cubic-bezier(.22,1,.36,1), box-shadow .5s;
+    }
+    .u8-card.wide { grid-column:span 2; }
+    .u8-card:hover { box-shadow:0 42px 70px rgba(60,36,6,.32), 0 30px 60px rgba(200,120,10,.16); z-index:5; }
+    .u8-card:hover .media { transform:scale(1.09); }
+    /* fx layer clips noise/sheen/shine inside the card; flat child, so the 3D label is unaffected */
+    .u8-fx { position:absolute; inset:0; border-radius:inherit; overflow:hidden; pointer-events:none; z-index:2; }
+    .u8-noise { position:absolute; inset:0; background:var(--noise); opacity:.4; mix-blend-mode:soft-light; }
+    .u8-ring { position:absolute; inset:9px; border-radius:15px; border:1px solid rgba(255,255,255,.35); opacity:0; transition:opacity .45s; pointer-events:none; z-index:2; }
+    .u8-card:hover .u8-ring { opacity:.9; }
+    .u8-sheen {
+      position:absolute; inset:0;
+      opacity:0; transition:opacity .45s;
+      background:radial-gradient(230px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.32), transparent 60%);
+    }
+    .u8-card:hover .u8-sheen { opacity:1; }
+    .u8-shine {
+      position:absolute; top:-30%; bottom:-30%; left:0; width:36%;
+      background:linear-gradient(112deg, transparent 42%, rgba(255,255,255,.22) 50%, transparent 58%);
+      transform:translateX(-320%) rotate(0.001deg); transition:transform .9s ease;
+    }
+    .u8-card:hover .u8-shine { transform:translateX(420%); }
+    .u8-label {
+      position:absolute; left:14px; bottom:14px; z-index:3;
+      display:flex; align-items:center; gap:.6rem;
+      padding:.6rem .85rem; border-radius:15px; min-width:130px;
+      background:rgba(255,255,255,.15);
+      backdrop-filter:blur(16px) saturate(150%); -webkit-backdrop-filter:blur(16px) saturate(150%);
+      border:1px solid rgba(255,255,255,.42);
+      box-shadow:0 10px 24px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.5);
+      transform:translateZ(54px); transition:transform .5s cubic-bezier(.22,1,.36,1);
+    }
+    .u8-card:hover .u8-label { transform:translateZ(104px) translateY(-3px); }
+    @supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px))) { .u8-label { background:rgba(28,18,6,.62); } }
+    .u8-label .aw {
+      width:26px; height:26px; border-radius:9px; display:grid; place-items:center; font-size:.8rem;
+      background:rgba(255,255,255,.92); color:var(--ink); flex:none;
+      transform:rotate(-45deg); transition:transform .35s, background .3s;
+    }
+    .u8-card:hover .u8-label .aw { transform:rotate(0deg); background:var(--gold-soft); }
+    .u8-label .tx { min-width:0; }
+    .u8-label .nm { display:block; font-weight:900; font-size:.96rem; line-height:1.08; color:#fff; text-shadow:0 1px 6px rgba(0,0,0,.45); }
+    .u8-label .ct { font-size:.62rem; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.78); }
+
+    /* ═══ U9 · PORTAL (inverse-parallax window) ═══════════════ */
+    .u9-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; perspective:1500px; }
+    .u9-card {
+      position:relative; border-radius:24px; text-decoration:none; transform-style:preserve-3d;
+      background:var(--paper); border:1px solid var(--line); padding:13px 13px 0;
+      box-shadow:0 14px 30px rgba(90,54,8,.13);
+      transition:transform .5s cubic-bezier(.22,1,.36,1), box-shadow .5s;
+    }
+    .u9-card:hover { box-shadow:0 34px 58px rgba(90,54,8,.24); z-index:5; }
+    .u9-win {
+      position:relative; height:158px; border-radius:14px; overflow:hidden; --emoji:2.7rem;
+      box-shadow:inset 0 8px 20px rgba(20,12,2,.38), inset 0 0 0 1px rgba(20,12,2,.22);
+    }
+    .u9-win .media {
+      transform:scale(1.22) translate(calc(var(--px,0)*-16px), calc(var(--py,0)*-16px));
+      transition:transform .25s ease-out;
+    }
+    .u9-win::after { content:''; position:absolute; inset:0; box-shadow:inset 0 6px 16px rgba(20,12,2,.32); pointer-events:none; }
+    .u9-bar { display:flex; align-items:center; justify-content:space-between; gap:.6rem; padding:.85rem .3rem .95rem; }
+    .u9-tx .nm { display:block; font-weight:900; font-size:.98rem; }
+    .u9-tx .ct { font-size:.66rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+    .u9-go { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; font-size:.85rem; background:var(--ink); color:#fff; transition:background .3s, transform .3s; flex:none; }
+    .u9-card:hover .u9-go { background:var(--gold-deep); transform:translate(2px,-2px); }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
+    @media (max-width:900px) {
+      .u1-grid { grid-template-columns:repeat(2,1fr); grid-auto-rows:210px; }
+      .u3-grid, .u5-grid, .u6-grid, .u7-grid, .u9-grid { grid-template-columns:repeat(2,1fr); }
+      .u4-grid { grid-template-columns:1fr; }
+      .site-header { flex-wrap:wrap; gap:.5rem; justify-content:center; }
+      .header-note { display:none; }
+    }
+    @media (max-width:560px) {
+      .u1-grid { grid-template-columns:1fr 1fr; grid-auto-rows:190px; gap:11px; }
+      .u1-card.wide { grid-column:span 2; }
+      .u2-row { flex-direction:column; height:auto; }
+      .u2-card { height:120px; flex:none !important; }
+      .u2-tag { display:none; }
+      .u2-label { opacity:1; transform:none; }
+      .u3-grid, .u5-grid, .u6-grid, .u7-grid, .u9-grid { grid-template-columns:1fr; }
+      .u3-grid { grid-auto-rows:230px; }
+      .u4-card { grid-template-columns:1fr; padding:16px; }
+      .u4-media { order:-1; height:140px; }
+      .u4-btn { margin-top:1rem; }
+      .u6-grid { padding-top:40px; }
+      .u7-grid { grid-auto-rows:210px; }
+      .u8-grid { grid-template-columns:repeat(2,1fr); grid-auto-rows:150px; gap:11px; }
+      .u8-card.wide { grid-column:span 2; }
+      .u8-label { min-width:0; padding:.5rem .7rem; }
+      .u8-label .nm { font-size:.84rem; }
+      .concept { padding:3rem 0; }
+    }
+    @media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="brand"><span class="mark">RS</span><b>Radhe Shyam</b></div>
+    <span class="header-note">Upgraded Bento Concepts · 21st.dev-grade UX</span>
+  </header>
+
+  <section class="intro">
+    <span class="kick">Round 2 · Structural Upgrades</span>
+    <h1>Nine <em>real</em> redesigns</h1>
+    <p>Last round changed the skin; this round changes the skeleton. Each variation borrows a proven
+       premium pattern from the 21st.dev component ecosystem — spotlight borders, border beams,
+       hover-expand galleries, reveal docks, magnetic buttons, kinetic type — while keeping a piece
+       of Option 1's DNA: the bento grid, the pointer tilt &amp; light, or the frosted glass chip.</p>
+    <p class="hint">↳ Hover matters here: docks slide, thumbnails fan, borders light up, buttons magnetize.</p>
+  </section>
+
+  <div class="wrap" id="concepts"></div>
+
+  <script>
+    /* ── Data ─────────────────────────────────────────────── */
+    var CATS = [
+      { n:'Cookware',         e:'🍳', g:['#F2822A','#C8780A'], ct:'64 items', subs:['Kadai','Frypans','Tawa'],        wide:true  },
+      { n:'Bronzeware',       e:'🪔', g:['#C98A12','#8A5A08'], ct:'24 items', subs:['Thali','Bowls','Glasses']                   },
+      { n:'Kitchen Storage',  e:'🫙', g:['#6FA0A6','#3C6E74'], ct:'46 items', subs:['Jars','Containers','Racks']                 },
+      { n:'Steel Dinnerware', e:'🍽️', g:['#A9B4BF','#6B7884'], ct:'52 items', subs:['Thali Sets','Plates','Bowls']               },
+      { n:'Appliances',       e:'🔌', g:['#46586E','#26313F'], ct:'40 items', subs:['Mixers','Air Fryers','Irons']               },
+      { n:'Brassware',        e:'🫖', g:['#D9A21A','#9A6A0A'], ct:'30 items', subs:['Teapots','Urli','Diyas'],       wide:true  }
+    ];
+    function media(c, cls) { return '<div class="' + (cls||'clip') + '"><div class="media" style="--g1:' + c.g[0] + ';--g2:' + c.g[1] + '"><span>' + c.e + '</span></div></div>'; }
+
+    /* ── Per-variation card builders (distinct skeletons) ──── */
+    var BUILDERS = {
+      u1: function (c) {
+        return '<a href="#" class="u1-card' + (c.wide?' wide':'') + '" data-tilt aria-label="Shop ' + c.n + '">' +
+          '<div class="u1-in">' +
+            '<div class="u1-media">' + media(c) + '</div>' +
+            '<div class="u1-spot"></div>' +
+            '<div class="u1-body"><span class="u1-ic">' + c.e + '</span>' +
+              '<span class="u1-tx"><span class="nm">' + c.n + '</span><span class="ct">' + c.ct + '</span></span>' +
+              '<span class="u1-go">↗</span></div>' +
+          '</div></a>';
+      },
+      u2: function (c) {
+        return '<a href="#" class="u2-card" style="--g1:' + c.g[0] + ';--g2:' + c.g[1] + '" aria-label="Shop ' + c.n + '">' +
+          media(c) +
+          '<span class="u2-tag">' + c.n + '</span>' +
+          '<div class="u2-label"><span class="chip"><span class="aw">↗</span><span class="nm">' + c.n + '</span></span>' +
+          '<span class="ct">' + c.ct + '</span></div></a>';
+      },
+      u3: function (c) {
+        return '<a href="#" class="u3-card" data-tilt aria-label="Shop ' + c.n + '">' +
+          media(c) +
+          '<div class="u3-chip"><span class="chip"><span class="aw">↗</span><span class="nm">' + c.n + '</span></span></div>' +
+          '<div class="u3-mask"><div class="u3-panel"><div class="u3-chips">' +
+            c.subs.map(function(s){ return '<span class="u3-sub">' + s + '</span>'; }).join('') +
+          '</div><span class="u3-cta">Explore ' + c.n + ' →</span></div></div></a>';
+      },
+      u4: function (c, i) {
+        return '<a href="#" class="u4-card" data-tilt="5" aria-label="Shop ' + c.n + '">' +
+          '<div class="u4-info">' +
+            '<span class="u4-eyebrow">Collection ' + String(i+1).padStart(2,'0') + '</span>' +
+            '<span class="u4-name">' + c.n + '</span>' +
+            '<span class="u4-count">' + c.ct + ' · curated range</span>' +
+            '<span class="u4-btn">→</span>' +
+          '</div>' +
+          '<div class="u4-media">' + media(c) + '</div></a>';
+      },
+      u5: function (c) {
+        return '<a href="#" class="u5-card" data-tilt aria-label="Shop ' + c.n + '">' +
+          '<div class="u5-in">' +
+            '<div class="u5-top"><span class="u5-ic">' + c.e + '</span><span class="u5-pill">' + c.ct + '</span></div>' +
+            '<div class="u5-media">' + media(c) + '</div>' +
+            '<div class="u5-foot"><span class="nm">' + c.n + '</span><span class="u5-go">Shop</span></div>' +
+          '</div></a>';
+      },
+      u6: function (c) {
+        return '<a href="#" class="u6-card" data-tilt aria-label="Shop ' + c.n + '">' +
+          c.subs.map(function(s,j){ return '<div class="u6-thumb t' + (j+1) + '" title="' + s + '">' + media(c) + '</div>'; }).join('') +
+          '<div class="u6-main">' + media(c) + '</div>' +
+          '<div class="u6-label"><span class="chip"><span class="aw">↗</span><span class="nm">' + c.n + '</span></span></div></a>';
+      },
+      u7: function (c, i) {
+        return '<a href="#" class="u7-card" data-tilt aria-label="Shop ' + c.n + '">' +
+          '<div class="u7-media">' + media(c) + '</div>' +
+          '<span class="u7-num">' + String(i+1).padStart(2,'0') + '</span>' +
+          '<span class="u7-name" style="--g1:' + c.g[0] + ';--g2:' + c.g[1] + '">' + c.n + '</span>' +
+          '<span class="u7-count">' + c.ct + '</span>' +
+          '<span class="u7-aw"><span class="chip"><span class="aw">↗</span></span></span></a>';
+      },
+      u8: function (c) {
+        return '<a href="#" class="u8-card' + (c.wide?' wide':'') + '" data-tilt aria-label="Shop ' + c.n + '">' +
+          media(c) +
+          '<div class="u8-fx"><div class="u8-noise"></div><div class="u8-sheen"></div><div class="u8-shine"></div></div><div class="u8-ring"></div>' +
+          '<div class="u8-label"><span class="aw">→</span>' +
+            '<span class="tx"><span class="nm">' + c.n + '</span><span class="ct">' + c.ct + '</span></span>' +
+          '</div></a>';
+      },
+      u9: function (c) {
+        return '<a href="#" class="u9-card" data-tilt="10" aria-label="Shop ' + c.n + '">' +
+          '<div class="u9-win">' + media(c) + '</div>' +
+          '<div class="u9-bar"><span class="u9-tx"><span class="nm">' + c.n + '</span><span class="ct">' + c.ct + '</span></span>' +
+          '<span class="u9-go">↗</span></div></a>';
+      }
+    };
+
+    var VARIS = [
+      { id:'u1', grid:'u1-grid', tag:'Upgrade 01', name:'Spotlight Frame',  desc:'The <b>Magic Card</b> pattern: a gold border glow and interior spotlight track your cursor. Structured as media-over-content with icon, count and a rotating action button.' },
+      { id:'u2', grid:'u2-row',  tag:'Upgrade 02', name:'Expanding Gallery',desc:'A <b>hover-expand gallery</b>: the row breathes — the hovered category grows wide while neighbours compress to elegant vertical spines. The Option-1 glass chip appears on expand.' },
+      { id:'u3', grid:'u3-grid', tag:'Upgrade 03', name:'Reveal Dock',      desc:'Real UX gain: hovering slides up a frosted <b>dock of sub-categories</b> (staggered chips) + CTA — shoppers can jump straight to Kadai or Air Fryers. Chip label stays pinned top-left.' },
+      { id:'u4', grid:'u4-grid', tag:'Upgrade 04', name:'Split Editorial',  desc:'Content and image become separate planes: editorial left column with eyebrow, serif title, count — and a <b>magnetic button</b> that leans toward your cursor while the photo tilts in 3D.' },
+      { id:'u5', grid:'u5-grid', tag:'Upgrade 05', name:'Border Beam Vault',desc:'The <b>Border Beam</b> pattern: a comet of light travels the card edge on hover. Structured header (icon + count pill) / media / footer (name + shop link) like a product spec card.' },
+      { id:'u6', grid:'u6-grid', tag:'Upgrade 06', name:'Gallery Fan',      desc:'A peek inside the category: three product <b>thumbnails fan out</b> from behind the card with staggered spring timing. The Option-1 chip stays as the anchor label.' },
+      { id:'u7', grid:'u7-grid', tag:'Upgrade 07', name:'Type Mask',        desc:'<b>Kinetic typography</b>: the category name is the hero, filled with its own product gradient. On hover the photo floods in and the type flips to white — editorial, poster-like.' },
+      { id:'u8', grid:'u8-grid', tag:'Upgrade 08', name:'Prime · Option 1 Evolved', desc:'Your current design, production-hardened: film-grain <b>noise</b>, an inner lens ring, a passing light sweep, cursor light, and a richer chip — name + item count + an arrow that un-rotates on hover.' },
+      { id:'u9', grid:'u9-grid', tag:'Upgrade 09', name:'Portal Window',    desc:'Depth in reverse: the product sits <b>inside a recessed window</b> and counter-moves against your tilt — like looking into a display case. Calm, physical, and quietly premium.' }
+    ];
+
+    document.getElementById('concepts').innerHTML = VARIS.map(function (v) {
+      return '<section class="concept">' +
+        '<div class="c-head"><span class="c-tag">' + v.tag + ' · ' + v.name + '</span>' +
+        '<h2 class="c-title">' + v.name + '</h2><p class="c-desc">' + v.desc + '</p></div>' +
+        '<div class="' + v.grid + '">' + CATS.map(function (c, i) { return BUILDERS[v.id](c, i); }).join('') + '</div>' +
+      '</section>';
+    }).join('');
+
+    /* ── Pointer engine v2: tilt + cursor light + raw offsets ─
+       --mx/--my  → % position (spotlights, sheens)
+       --px/--py  → -0.5..0.5 offsets (magnetic buttons, inverse parallax)
+       data-tilt="N" tunes the tilt strength per variation.        */
+    (function () {
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var fine   = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      if (!fine) return;
+      document.querySelectorAll('[data-tilt]').forEach(function (el) {
+        var damp = parseFloat(el.getAttribute('data-tilt'));
+        if (isNaN(damp)) damp = 12;
+        el.addEventListener('mousemove', function (e) {
+          var r = el.getBoundingClientRect();
+          var px = (e.clientX - r.left) / r.width;
+          var py = (e.clientY - r.top)  / r.height;
+          el.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+          el.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+          el.style.setProperty('--px', (px - 0.5).toFixed(3));
+          el.style.setProperty('--py', (py - 0.5).toFixed(3));
+          if (!reduce && damp > 0) {
+            el.style.transform =
+              'rotateX(' + ((0.5 - py) * damp).toFixed(2) + 'deg) rotateY(' +
+              ((px - 0.5) * damp).toFixed(2) + 'deg) translateY(-6px)';
+          }
+        });
+        el.addEventListener('mouseleave', function () {
+          el.style.transform = '';
+          ['--mx','--my','--px','--py'].forEach(function (p) { el.style.removeProperty(p); });
+        });
+      });
+    })();
+  </script>
+
+</body>
+</html>
