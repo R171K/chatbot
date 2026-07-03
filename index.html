@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radhe Shyam — Home (with FAQ)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ─── Reset & Tokens ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold:#EC9B13; --gold-soft:#F5B93A; --gold-deep:#C8780A;
+      --orange:#F26B21; --ink:#241608; --cream:#FBF4EA; --white:#FFFFFF; --muted:#8A7658;
+      --line:rgba(120,80,20,.14);
+      --ease:cubic-bezier(.22,1,.36,1);
+      --pop:1.28;              /* how big the hovered tile grows — the size control */
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Nunito', sans-serif; color: var(--ink); min-height: 100vh; overflow-x: hidden;
+      background:
+        radial-gradient(1200px 600px at 12% -5%, #FFF1DA 0%, transparent 55%),
+        radial-gradient(1000px 620px at 100% 110%, #FDE7D2 0%, transparent 55%),
+        linear-gradient(180deg, #FDF7EF 0%, #F7EEE1 100%);
+    }
+
+    /* ─── Announcement + Header ──────────────────────────────── */
+    .announcement {
+      background:#141414; color:#E7C98C; font-size:.7rem; font-weight:600; letter-spacing:.06em;
+      text-transform:uppercase; text-align:center; padding:.42rem 1rem; display:flex; justify-content:center; gap:2.5rem; flex-wrap:wrap;
+    }
+    .announcement span { display:flex; align-items:center; gap:.4rem; }
+    .site-header {
+      background:var(--orange); padding:.6rem 2rem; display:flex; align-items:center; justify-content:space-between; gap:1rem;
+      position:sticky; top:0; z-index:100; box-shadow:0 2px 16px rgba(242,107,33,.32);
+    }
+    .nav-left { display:flex; align-items:center; gap:1.8rem; }
+    .nav-link { color:var(--white); text-decoration:none; font-size:.86rem; font-weight:700; letter-spacing:.02em; transition:opacity .2s; }
+    .nav-link:hover { opacity:.8; }
+    .nav-link.dropdown::after { content:' ⌄'; font-size:.75rem; }
+    .logo-wrap { position:absolute; left:50%; transform:translateX(-50%); }
+    .logo-fallback {
+      height:46px; width:46px; border-radius:50%; background:rgba(255,255,255,.22); border:2px solid rgba(255,255,255,.5);
+      display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-weight:700; font-size:1rem; color:var(--white); letter-spacing:.03em;
+    }
+    .nav-right { display:flex; align-items:center; gap:.9rem; }
+    .search-bar {
+      background:rgba(255,255,255,.2); border:1.5px solid rgba(255,255,255,.4); border-radius:50px; padding:.38rem 1.1rem;
+      color:var(--white); font-family:'Nunito',sans-serif; font-size:.8rem; width:180px; outline:none;
+    }
+    .search-bar::placeholder { color:rgba(255,255,255,.75); }
+    .nav-icon {
+      width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.18); border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; color:var(--white); font-size:1rem;
+    }
+
+    /* ─── Section ────────────────────────────────────────────── */
+    .page { max-width:1180px; margin:0 auto; padding:2.6rem 1.4rem 3rem; }
+    .sec-head { text-align:center; margin-bottom:2rem; }
+    .eyebrow {
+      display:inline-flex; align-items:center; gap:.5rem; font-size:.7rem; font-weight:800; letter-spacing:.16em;
+      text-transform:uppercase; color:var(--gold-deep); margin-bottom:.4rem;
+    }
+    .eyebrow::before, .eyebrow::after { content:''; width:24px; height:1.5px; background:var(--gold); }
+    .sec-title { font-family:'Playfair Display',serif; font-weight:700; font-size:clamp(1.7rem,3.4vw,2.4rem); line-height:1.12; letter-spacing:-.01em; }
+    .sec-title em { font-style:italic; color:var(--orange); }
+    .sec-note { margin-top:.55rem; font-size:.86rem; color:var(--muted); }
+    .sec-note b { color:var(--gold-deep); font-weight:800; }
+
+    /* ═══════════════════════════════════════════════════════════
+       FLIP CARD  (front = image + name/arrow · back = full image)
+       · Option-2 3D flip on hover  · pointer-follow 3D tilt + lift
+    ═══════════════════════════════════════════════════════════ */
+    .cards { display:grid; grid-template-columns:repeat(3, 1fr); gap:26px; perspective:1700px; }
+
+    /* outer = the 3D tilt / lift layer (JS drives rotateX/Y) */
+    .card3d {
+      position:relative; height:430px; border-radius:26px; cursor:pointer;
+      transform-style:preserve-3d; will-change:transform;
+      transition:transform .5s var(--ease), box-shadow .5s var(--ease), filter .5s var(--ease);
+      box-shadow:0 18px 34px rgba(90,54,8,.14), 0 4px 10px rgba(90,54,8,.08);
+    }
+    .card3d:hover { box-shadow:0 46px 74px rgba(90,54,8,.30), 0 14px 26px rgba(200,120,10,.16); z-index:5; }
+
+    /* inner = the flip layer */
+    .flip { position:absolute; inset:0; transform-style:preserve-3d; transition:transform .72s var(--ease); }
+    .card3d:hover .flip, .card3d.flipped .flip { transform:rotateY(180deg); }
+
+    .face {
+      position:absolute; inset:0; border-radius:26px; overflow:hidden;
+      -webkit-backface-visibility:hidden; backface-visibility:hidden;
+    }
+
+    /* ── FRONT — image box on top, name + premium + arrow below ── */
+    .front { background:var(--white); border:1px solid rgba(120,80,20,.10); padding:15px; display:flex; flex-direction:column; }
+    .front .imgbox {
+      position:relative; flex:1; border-radius:16px; overflow:hidden;
+      background:var(--cream); box-shadow:inset 0 0 0 1px rgba(120,80,20,.06);
+    }
+    .front .foot { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:.95rem .5rem .35rem; }
+    .front .name { font-size:1.5rem; font-weight:900; line-height:1.1; letter-spacing:-.01em; color:var(--ink); }
+    .front .sub  { margin-top:.2rem; font-size:.86rem; font-weight:600; color:var(--muted); }
+    .front .go {
+      flex:none; width:52px; height:52px; border-radius:50%; display:grid; place-items:center;
+      background:var(--white); border:1px solid var(--line); color:var(--orange); font-size:1.35rem; line-height:1;
+      box-shadow:0 8px 18px rgba(90,54,8,.14); transition:background .3s, color .3s, transform .3s, box-shadow .3s;
+    }
+    .card3d:hover .front .go { background:var(--orange); color:#fff; transform:translate(2px,-2px); box-shadow:0 12px 22px rgba(242,107,33,.4); }
+
+    /* ── BACK — the image fills the WHOLE card (no name / no arrow) ── */
+    .back { transform:rotateY(180deg); background:var(--cream); }
+    .back .fill { position:absolute; inset:0; }
+    .back .glow { position:absolute; inset:0; box-shadow:inset 0 0 0 2px rgba(255,255,255,.28), inset 0 0 60px rgba(0,0,0,.18); pointer-events:none; }
+
+    /* ── media (real photo OR branded gradient tile) ── */
+    .photo { width:100%; height:100%; object-fit:cover; display:block; }
+    .media {
+      position:absolute; inset:0; display:grid; place-items:center;
+      background:linear-gradient(140deg, var(--g1,#F2822A), var(--g2,#C8780A));
+    }
+    .media::before { content:''; position:absolute; inset:0; background:radial-gradient(120% 85% at 22% 12%, rgba(255,255,255,.42), transparent 52%); mix-blend-mode:screen; }
+    .media > span { position:relative; z-index:1; font-size:3rem; line-height:1; filter:drop-shadow(0 12px 18px rgba(0,0,0,.32)); }
+
+    /* ─── View-all button ────────────────────────────────────── */
+    .footer-strip { text-align:center; margin-top:2.4rem; }
+    .btn-all {
+      display:inline-flex; align-items:center; gap:.55rem; padding:.7rem 1.9rem; border-radius:50px;
+      background:var(--ink); color:var(--white); font-size:.82rem; font-weight:700; letter-spacing:.04em; text-decoration:none; text-transform:uppercase;
+      box-shadow:0 8px 20px rgba(36,22,8,.22); transition:background .25s, transform .25s;
+    }
+    .btn-all:hover { background:var(--gold-deep); transform:translateY(-2px); }
+    .btn-all::after { content:'→'; }
+
+    /* ═══════════════════════════════════════════════════════════
+       FAQ SECTION (end of homepage)
+    ═══════════════════════════════════════════════════════════ */
+    .faq-section { border-top:1px solid var(--line); margin-top:1rem; }
+    .faq-inner { max-width:820px; margin:0 auto; padding:3.4rem 1.4rem 1rem; }
+    .faq-head { text-align:center; margin-bottom:1.8rem; }
+    .faq-head .sec-title { font-size:clamp(1.6rem,3.2vw,2.2rem); }
+    .faq-item {
+      border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,.66);
+      backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+      margin-bottom:.8rem; overflow:hidden; transition:border-color .3s var(--ease), box-shadow .3s var(--ease), background .3s;
+    }
+    .faq-item.open { border-color:rgba(242,107,33,.5); box-shadow:0 18px 40px rgba(60,36,6,.12); background:rgba(255,255,255,.9); }
+    .faq-q {
+      width:100%; text-align:left; background:none; border:none; cursor:pointer; font-family:'Nunito',sans-serif;
+      display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1.1rem 1.25rem;
+      font-size:.98rem; font-weight:800; color:var(--ink); line-height:1.35;
+    }
+    .faq-q:hover { color:var(--gold-deep); }
+    .faq-ic {
+      flex:none; width:28px; height:28px; border-radius:50%; display:grid; place-items:center;
+      background:var(--cream); border:1px solid var(--line); color:var(--gold-deep); position:relative; transition:background .3s, transform .35s var(--ease), border-color .3s;
+    }
+    .faq-item.open .faq-ic { background:var(--orange); border-color:var(--orange); color:#fff; transform:rotate(135deg); }
+    .faq-ic::before, .faq-ic::after { content:''; position:absolute; background:currentColor; border-radius:2px; }
+    .faq-ic::before { width:12px; height:2.4px; }
+    .faq-ic::after  { width:2.4px; height:12px; }
+    .faq-a { max-height:0; overflow:hidden; transition:max-height .4s var(--ease); }
+    .faq-a-inner { padding:0 1.25rem 1.2rem; font-size:.9rem; color:#5a4a33; line-height:1.7; }
+    .faq-a-inner b { color:var(--gold-deep); }
+    .faq-more { text-align:center; margin-top:1.4rem; }
+    .faq-more a { color:var(--gold-deep); font-weight:800; font-size:.86rem; text-decoration:none; border-bottom:2px solid rgba(200,120,10,.35); padding-bottom:2px; }
+    .faq-more a:hover { color:var(--orange); }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
+    @media (max-width:900px) {
+      .cards { grid-template-columns:repeat(2, 1fr); gap:20px; }
+      .card3d { height:400px; }
+      .logo-wrap { position:static; transform:none; }
+      .site-header { justify-content:center; flex-wrap:wrap; gap:.6rem; }
+    }
+    @media (max-width:560px) {
+      .cards { grid-template-columns:1fr; }
+      .card3d { height:420px; }
+      .page { padding:2rem .9rem 2.4rem; }
+      .search-bar { width:130px; }
+    }
+    @media (prefers-reduced-motion:reduce) { * { animation:none !important; transition-duration:.01ms !important; } }
+  </style>
+</head>
+<body>
+
+  <div class="announcement">
+    <span>⭐ Trusted by Thousands of Families</span>
+    <span>🏆 Premium Quality Steelware</span>
+    <span>📞 +91 90818 15180</span>
+  </div>
+
+  <header class="site-header">
+    <nav class="nav-left">
+      <a href="#" class="nav-link dropdown">All Categories</a>
+      <a href="#" class="nav-link">Contact Us</a>
+      <a href="#" class="nav-link">Orders</a>
+      <!-- NEW: FAQ button on the left of the header → opens the dedicated FAQ page -->
+      <a href="faq.html" class="nav-link">FAQ</a>
+    </nav>
+    <div class="logo-wrap"><div class="logo-fallback">RS</div></div>
+    <div class="nav-right">
+      <input class="search-bar" type="text" placeholder="Search products…" />
+      <button class="nav-icon" title="Account">👤</button>
+      <button class="nav-icon" title="Cart">🛒</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="sec-head">
+      <div class="eyebrow">Our Collections</div>
+      <h2 class="sec-title">Shop by <em>Category</em></h2>
+      <p class="sec-note">Hover a card — it <b>flips</b> to reveal the full product image and gently tilts in 3D.</p>
+    </div>
+
+    <div class="cards" id="cards"></div>
+
+    <div class="footer-strip"><a href="#" class="btn-all">View All Categories</a></div>
+  </main>
+
+  <!-- ═══ NEW: FAQ SECTION at the end of the homepage ═══ -->
+  <section class="faq-section">
+    <div class="faq-inner">
+      <div class="faq-head">
+        <div class="eyebrow">Help Centre</div>
+        <h2 class="sec-title">Frequently Asked <em>Questions</em></h2>
+        <p class="sec-note">Quick answers about shopping steel &amp; crockery with Radhe Shyam.</p>
+      </div>
+
+      <div id="faq"></div>
+
+      <div class="faq-more"><a href="faq.html">View all FAQs →</a></div>
+    </div>
+  </section>
+
+  <script>
+    /* ── Category data · img = real product photo in this folder; else branded gradient+emoji tile ── */
+    var CATS = [
+      { n:'Cookware',         e:'🍳', g:['#F2822A','#C8780A'] },
+      { n:'Home Appliances',  img:'aa_shop_now_and_product_awarness.webp' },
+      { n:'Steel Dinnerware', img:'crockery-wala-and-company-laser-finish-stainless-steel-dinner-set-63-pieces-silver-9457882.webp' },
+      { n:'Kitchen Storage',  img:'images.jpeg' },
+      { n:'Bronzeware',       img:'pexels-photo-37533988.avif' },
+      { n:'Pooja Essentials', img:'brass-pooja-articles-jpg-500x500.webp' },
+      { n:'Drinkware',        e:'🥤', g:['#C88A3A','#8A5A12'] },
+      { n:'Crockery',         e:'🍵', g:['#E98A4E','#B85E28'] }
+    ];
+
+    function media(c) {
+      return c.img
+        ? '<img class="photo" src="' + c.img + '" alt="' + c.n + '" loading="lazy" />'
+        : '<div class="media" style="--g1:' + c.g[0] + ';--g2:' + c.g[1] + '"><span>' + c.e + '</span></div>';
+    }
+    function cardHTML(c) {
+      return '' +
+      '<div class="card3d" role="button" tabindex="0" aria-label="Shop ' + c.n + '">' +
+        '<div class="flip">' +
+          // FRONT: image box + name / premium collection / arrow
+          '<div class="face front">' +
+            '<div class="imgbox">' + media(c) + '</div>' +
+            '<div class="foot">' +
+              '<div class="txt"><div class="name">' + c.n + '</div><div class="sub">Premium collection</div></div>' +
+              '<div class="go">→</div>' +
+            '</div>' +
+          '</div>' +
+          // BACK: image fills the whole card (name + arrow gone)
+          '<div class="face back">' +
+            '<div class="fill">' + media(c) + '</div><div class="glow"></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    var wrapCards = document.getElementById('cards');
+    wrapCards.innerHTML = CATS.map(cardHTML).join('');
+    var cards = Array.prototype.slice.call(wrapCards.children);
+
+    var fine   = !window.matchMedia || window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var TILT = 9, LIFT = 10;   /* 3D tilt degrees + hover lift px */
+
+    function tilt(card, e) {
+      if (reduce) return;
+      var b = card.getBoundingClientRect();
+      var px = (e.clientX - b.left) / b.width, py = (e.clientY - b.top) / b.height;
+      var rx = (0.5 - py) * TILT, ry = (px - 0.5) * TILT;
+      card.style.transform = 'rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) translateY(-' + LIFT + 'px) scale(1.02)';
+    }
+    function rest(card) { card.style.transform = ''; }
+
+    cards.forEach(function (card) {
+      if (fine) {
+        card.addEventListener('mousemove', function (e) { tilt(card, e); });
+        card.addEventListener('mouseleave', function () { rest(card); });
+      }
+      // keyboard + touch: toggle flip
+      card.addEventListener('click', function () { card.classList.toggle('flipped'); });
+      card.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.classList.toggle('flipped'); }
+      });
+    });
+
+    /* ── FAQ accordion (homepage — top 5, full list on faq.html) ── */
+    var FAQ = [
+      { q:'What kind of kitchen and steelware products can I find at Radhe Shyam?',
+        a:'A complete range of stainless-steel and household essentials — <b>cookware, home appliances, kitchen storage, steel dinnerware, bronzeware, drinkware, crockery and pooja essentials</b> — all under one roof.' },
+      { q:'Is Radhe Shyam suitable for setting up a complete kitchen or new home?',
+        a:'Absolutely. From cooking vessels and storage containers to dinner sets and serving ware, we can help you <b>fit out an entire kitchen in a single visit</b>, matched to your family size and budget.' },
+      { q:'Do you offer steel and crockery items suitable for Indian cooking and daily use?',
+        a:'Yes — heavy-gauge kadhai, tope, thali sets, tiffin boxes and storage dabbas, all <b>food-grade and built for regular daily use</b> in Indian kitchens.' },
+      { q:'Can Radhe Shyam help with Diwali and festive gifting in Surat?',
+        a:'Festive gifting is a speciality. We offer <b>premium steel and bronze gift sets</b>, pooja items and beautifully packed dinner sets — perfect for Diwali, weddings and housewarmings.' },
+      { q:'Is Radhe Shyam a good option for bulk purchase of steel utensils?',
+        a:'Yes. We handle <b>bulk and wholesale orders</b> for families, caterers, tiffin services and gifting, with better pricing on larger quantities.' }
+    ];
+
+    var wrap = document.getElementById('faq');
+    wrap.innerHTML = FAQ.map(function (f, i) {
+      return '<div class="faq-item" data-i="' + i + '">' +
+        '<button class="faq-q" aria-expanded="false" aria-controls="fa' + i + '">' +
+          '<span>' + f.q + '</span><span class="faq-ic" aria-hidden="true"></span></button>' +
+        '<div class="faq-a" id="fa' + i + '" role="region"><div class="faq-a-inner">' + f.a + '</div></div>' +
+      '</div>';
+    }).join('');
+
+    var items = Array.prototype.slice.call(wrap.querySelectorAll('.faq-item'));
+    items.forEach(function (item) {
+      var btn = item.querySelector('.faq-q');
+      var panel = item.querySelector('.faq-a');
+      btn.addEventListener('click', function () {
+        var isOpen = item.classList.contains('open');
+        items.forEach(function (o) {
+          o.classList.remove('open');
+          o.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+          o.querySelector('.faq-a').style.maxHeight = null;
+        });
+        if (!isOpen) {
+          item.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+          panel.style.maxHeight = panel.scrollHeight + 'px';
+        }
+      });
+    });
+    window.addEventListener('resize', function () {
+      var open = wrap.querySelector('.faq-item.open .faq-a');
+      if (open) open.style.maxHeight = open.scrollHeight + 'px';
+    });
+  </script>
+
+</body>
+</html>
